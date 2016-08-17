@@ -4,11 +4,18 @@ import matplotlib.pyplot as pl
 #lines = ["x","+","--",":","-."]
 #colours = ["k","r","k","r","k"]
 
+
 from matplotlib import rc, rcParams
 rc('text',usetex=True)
 rc('font',**{'family':'serif','serif':['Computer Modern']})
 
-import params
+#import params
+
+# Import my 'common' module that includes relevant constants etc
+
+from common import *
+
+params = AttrDict(constants) # This allows you to access stored dictionary constants using the dot method. 
 
 def h_star_calc(delta_f, D, delta_s):
     h_star = delta_f / (D * delta_s)
