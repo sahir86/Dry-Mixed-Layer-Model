@@ -1,4 +1,4 @@
-#import numpy as np
+import numpy as np
 import matplotlib.pyplot as pl
 #from itertools import cycle
 #lines = ["x","+","--",":","-."]
@@ -14,6 +14,9 @@ rc('font',**{'family':'serif','serif':['Computer Modern']})
 # Import my 'common' module that includes relevant constants etc
 
 from common import *
+
+# Close any existing figures
+pl.close('all')
 
 params = AttrDict(constants) # This allows you to access stored dictionary constants using the dot method. 
 
@@ -40,7 +43,9 @@ def h_infty_calc(alpha, sigma, h_star):
 
 # Define constants:
 
-alpha = float(raw_input("Please enter your value for alpha:> "))
+#alpha = float(raw_input("Please enter your value for alpha:> "))
+
+alpha = np.linspace(0.01,2.2,100)
 
 # Compute variables using functions defined above. 
 
@@ -54,8 +59,37 @@ s_infty = s_infty_calc(alpha, sigma, params.delta_s, s_0)
 
 h_infty = h_infty_calc(alpha, sigma, h_star)
 
-print "The value of alpha is: ", alpha
+#print "The value of alpha is: ", alpha
 #print "The value of sigma is: ", sigma
-print "The value of s_infty is: ", s_infty, "Joules per Kilogram."
-print "The value of h_infty is: ", h_infty, "Metres."
+#print "The value of s_infty is: ", s_infty, "Joules per Kilogram."
+#print "The value of h_infty is: ", h_infty, "Metres."
 
+#print "alpha_vec = ", alpha
+#print " h_infty_vec = ", h_infty
+
+
+fig1 = pl.figure(1)
+
+pl.figure(1)
+ 
+pl.plot(alpha,h_infty)
+pl.title("height vs alpha" ,fontsize=26)
+pl.xlabel("alpha", fontsize=24)
+pl.ylabel("$h_\infty$", fontsize=24)
+#pl.xlim(lvec[0]-1,lvec[-1]+1)
+ 
+fig1.savefig("height_vs_alpha.pdf")
+
+pl.show(fig1)
+#pl.close(fig1)
+
+fig2 = pl.figure(2)
+pl.figure(2)
+pl.plot(alpha,s_infty)
+pl.title("s vs alpha", fontsize=26)
+pl.xlabel("alpha", fontsize=24)
+pl.ylabel("$s_\infty$", fontsize=24)
+fig2.savefig("s_infinity_vs_alpha.pdf")
+        
+pl.show(fig2)
+#pl.close(fig2)
