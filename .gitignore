@@ -2,3 +2,8 @@
 *.pyc
 # Ignore Vim .swp files. These apparently only exist while vim has active documents open. 
 *.swp
+
+# Ignore all pdf files. 
+
+*.pdf
+

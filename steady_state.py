@@ -6,20 +6,23 @@ import matplotlib.pyplot as pl
 
 
 from matplotlib import rc, rcParams
+# Use LaTex to format figure axes labels. 
 rc('text',usetex=True)
 rc('font',**{'family':'serif','serif':['Computer Modern']})
 
 #import params
 
 # Import my 'common' module that includes relevant constants etc
-
 from common import *
 
 # Close any existing figures
 pl.close('all')
 
-params = AttrDict(constants) # This allows you to access stored dictionary constants using the dot method. 
+# Define constants:
+# This allows you to access stored dictionary constants using the dot method. 
+params = AttrDict(constants) # Try to find a more standard way of doing this.
 
+# Define the main functions for computing the mathematical expressions.
 def h_star_calc(delta_f, D, delta_s):
     h_star = delta_f / (D * delta_s)
     return h_star
@@ -41,11 +44,13 @@ def h_infty_calc(alpha, sigma, h_star):
     return h_infty
 
 
-# Define constants:
+# Lowest and highest values of alpha. Note that alpha should be > 0 and < 3.5. Never equal to 3.5. 
+# Consider writing an if statement with an error message if alpha >= 3.5 is entered. 
+start_alpha = float(raw_input("Please enter the lowest value for alpha:> ") or "0.025") # If the user enters nothing, use 0.025 as the default value.  
+end_alpha = float(raw_input("Please enter the highest value for alpha:> ")or "2.5") # Use 2.5 as the default value if the user enters nothing. 
 
-#alpha = float(raw_input("Please enter your value for alpha:> "))
 
-alpha = np.linspace(0.01,2.2,100)
+alpha = np.linspace(start_alpha,end_alpha,100) # Create an array of alpha values using the input values taken from the user. Note that 100 divisions are used. 
 
 # Compute variables using functions defined above. 
 
@@ -73,12 +78,12 @@ fig1 = pl.figure(1)
 pl.figure(1)
  
 pl.plot(alpha,h_infty)
-pl.title("height vs alpha" ,fontsize=26)
-pl.xlabel("alpha", fontsize=24)
-pl.ylabel("$h_\infty$", fontsize=24)
+pl.title("Steady State Height vs alpha" ,fontsize=26)
+pl.xlabel(r"$\alpha$", fontsize=24)
+pl.ylabel(r"$h_\infty$", fontsize=24)
 #pl.xlim(lvec[0]-1,lvec[-1]+1)
  
-fig1.savefig("height_vs_alpha.pdf")
+#fig1.savefig("height_vs_alpha.pdf")
 
 pl.show(fig1)
 #pl.close(fig1)
@@ -86,10 +91,10 @@ pl.show(fig1)
 fig2 = pl.figure(2)
 pl.figure(2)
 pl.plot(alpha,s_infty)
-pl.title("s vs alpha", fontsize=26)
-pl.xlabel("alpha", fontsize=24)
-pl.ylabel("$s_\infty$", fontsize=24)
-fig2.savefig("s_infinity_vs_alpha.pdf")
+pl.title("Steady State Dry Static Energy vs alpha", fontsize=26)
+pl.xlabel(r"$\alpha$", fontsize=24)
+pl.ylabel(r"$s_\infty$", fontsize=24)
+#fig2.savefig("s_infinity_vs_alpha.pdf")
         
 pl.show(fig2)
 #pl.close(fig2)
