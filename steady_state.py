@@ -1,9 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as pl
-#from itertools import cycle
-#lines = ["x","+","--",":","-."]
-#colours = ["k","r","k","r","k"]
+from itertools import cycle
 
+#lines = ["x","+","s","D","^","o","h","p"]
+colours = ["k","r","b","g","y","m","c","k"]
 
 from matplotlib import rc, rcParams
 # Use LaTex to format figure axes labels. 
@@ -52,17 +52,49 @@ end_alpha = float(raw_input("Please enter the highest value for alpha:> ")or "2.
 
 alpha = np.linspace(start_alpha,end_alpha,100) # Create an array of alpha values using the input values taken from the user. Note that 100 divisions are used. 
 
-# Compute variables using functions defined above. 
+delta_f = np.linspace(30.0,50.0,5)
 
-h_star = h_star_calc(params.delta_f, params.D, params.delta_s)
+fig1 = pl.figure("h_vs_alpha")
+#pl.figure(1)
 
-sigma = sigma_calc(params.V, params.delta_f, params.delta_s)
+fig2 = pl.figure("s_vs_alpha")
+#pl.figure(2)
 
-s_0 = s_0_calc(params.g,params.Cp,params.T,params.z)
+for i in range(delta_f.size):
 
-s_infty = s_infty_calc(alpha, sigma, params.delta_s, s_0)
+    # Compute variables using functions defined above. 
 
-h_infty = h_infty_calc(alpha, sigma, h_star)
+    h_star = h_star_calc(delta_f[i], params.D, params.delta_s)
+    
+    sigma = sigma_calc(params.V, delta_f[i], params.delta_s)
+    
+    s_0 = s_0_calc(params.g,params.Cp,params.T,params.z)
+    
+    s_infty = s_infty_calc(alpha, sigma, params.delta_s, s_0)
+    
+    h_infty = h_infty_calc(alpha, sigma, h_star)
+    
+
+    labelstr_sigma =str(r"$\sigma =$ ") + "%.2f" % sigma
+    labelstr2_delta_f =str(r"$\Delta F =$ ") + "%.2f" % delta_f[i] # This is incomplete, need to see how to use a second legend. 
+    #pl.figure(1) # Switch to figure 1.
+    pl.figure("h_vs_alpha")
+        
+    pl.plot(alpha,h_infty,colours[i],label=labelstr_sigma)
+    pl.title("Steady State Height vs alpha" ,fontsize=26)
+    pl.xlabel(r"$\alpha$", fontsize=24)
+    pl.ylabel(r"$h_\infty$", fontsize=24)
+    pl.legend(ncol=1,loc = 'upper left')
+    #pl.xlim(lvec[0]-1,lvec[-1]+1)
+    
+    #pl.figure(2) # Switch to figure 2. 
+    pl.figure("s_vs_alpha") 
+
+    pl.plot(alpha,s_infty,colours[i],label=labelstr_sigma)
+    pl.title("Steady State Dry Static Energy vs alpha", fontsize=26)
+    pl.xlabel(r"$\alpha$", fontsize=24)
+    pl.ylabel(r"$s_\infty$", fontsize=24)
+    pl.legend(ncol=1,loc = 'upper left')
 
 #print "The value of alpha is: ", alpha
 #print "The value of sigma is: ", sigma
@@ -72,28 +104,13 @@ h_infty = h_infty_calc(alpha, sigma, h_star)
 #print "alpha_vec = ", alpha
 #print " h_infty_vec = ", h_infty
 
-
-fig1 = pl.figure(1)
-
-pl.figure(1)
  
-pl.plot(alpha,h_infty)
-pl.title("Steady State Height vs alpha" ,fontsize=26)
-pl.xlabel(r"$\alpha$", fontsize=24)
-pl.ylabel(r"$h_\infty$", fontsize=24)
-#pl.xlim(lvec[0]-1,lvec[-1]+1)
  
 #fig1.savefig("height_vs_alpha.pdf")
 
 pl.show(fig1)
 #pl.close(fig1)
 
-fig2 = pl.figure(2)
-pl.figure(2)
-pl.plot(alpha,s_infty)
-pl.title("Steady State Dry Static Energy vs alpha", fontsize=26)
-pl.xlabel(r"$\alpha$", fontsize=24)
-pl.ylabel(r"$s_\infty$", fontsize=24)
 #fig2.savefig("s_infinity_vs_alpha.pdf")
         
 pl.show(fig2)
