@@ -76,11 +76,12 @@ for i in range(delta_f.size):
     
 
     labelstr_sigma =str(r"$\sigma =$ ") + "%.2f" % sigma
-    labelstr2_delta_f =str(r"$\Delta F =$ ") + "%.2f" % delta_f[i] # This is incomplete, need to see how to use a second legend. 
+    labelstr_delta_f =str(r"$\Delta F =$ ") + "%.2f" % delta_f[i] # This is incomplete, need to see how to use a second legend.
+    combined_labelstr = labelstr_sigma + "  " + labelstr_delta_f 
     #pl.figure(1) # Switch to figure 1.
     pl.figure("h_vs_alpha")
         
-    pl.plot(alpha,h_infty,colours[i],label=labelstr_sigma)
+    pl.plot(alpha,h_infty,colours[i],label=combined_labelstr)
     pl.title("Steady State Height vs alpha" ,fontsize=26)
     pl.xlabel(r"$\alpha$", fontsize=24)
     pl.ylabel(r"$h_\infty$", fontsize=24)
@@ -90,7 +91,7 @@ for i in range(delta_f.size):
     #pl.figure(2) # Switch to figure 2. 
     pl.figure("s_vs_alpha") 
 
-    pl.plot(alpha,s_infty,colours[i],label=labelstr_sigma)
+    pl.plot(alpha,s_infty,colours[i],label=combined_labelstr)
     pl.title("Steady State Dry Static Energy vs alpha", fontsize=26)
     pl.xlabel(r"$\alpha$", fontsize=24)
     pl.ylabel(r"$s_\infty$", fontsize=24)
