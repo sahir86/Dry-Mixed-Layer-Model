@@ -3,9 +3,10 @@ import matplotlib.pyplot as pl
 from itertools import cycle
 
 #lines = ["x","+","s","D","^","o","h","p"]
-colours = ["k","r","b","g","y","m","c","k"]
+#colours = ["k","r","b","g","y","m","c","k"]
 
 from matplotlib import rc, rcParams
+
 # Use LaTex to format figure axes labels. 
 rc('text',usetex=True)
 rc('font',**{'family':'serif','serif':['Computer Modern']})
@@ -46,9 +47,9 @@ def h_infty_calc(alpha, sigma, h_star):
 
 # An initial guess for s_n when t = 0. Try to find a better way of doing this.
 # Functions for numerical time evolution code.
-def s_init_calc(s_0,delta_s):
-    s_init = s_0 + delta_s / 2.0
-    return s_init
+#def s_init_calc(s_0,delta_s):
+#    s_init = s_0 + delta_s / 2.0
+#    return s_init
 
 def h_n_plus_one_euler(alpha,delta_f,delta_s,s_n,s_0,D,h_n,delta_t):
     h_n_plus_one = ((alpha * delta_f) / (delta_s - s_n + s_0) - D*h_n) * delta_t + h_n 
@@ -93,7 +94,9 @@ def s_n_plus_one_runge(delta_f,alpha,V,s_n,s_0,h_n,delta_t):
 alpha_array = np.linspace(0.05,2.5,5)
 delta_f_array = np.linspace(30.0,50.0,5)
 
-choice = raw_input("Would you like to vary alpha (a) or delta_f (f)? (Default is alpha):> ") or "a"
+scheme =  raw_input("Which scheme would you like to use, Forward Euler (fe), Runge Kutta (rk), or both (bth)? (Default is Both):> ") or "bth"
+
+choice = raw_input("Would you like to vary alpha (a) or delta_f (f)? (Default is delta_f):> ") or "f"
 
 if choice == "a":
     outer_array = alpha_array
@@ -103,8 +106,7 @@ else:
     outer_array = delta_f_array
     alpha_choice = float(raw_input("Please enter a value for alpha (Default is 1.0):> ") or "1.0")
     alpha_array = np.full_like(alpha_array,alpha_choice)
-
-
+  
 h_init = float(raw_input("Please enter an initial value for h (Default is 10.0):> ") or "10.0") # If nothing is entered, use 10m for the initial height
 t_max = int(raw_input("Please enter a maximum time value (Default is 2000000):> ") or "2000000")
 delta_t = float(raw_input("Please enter a time step size (Default is 50.0):> ") or "50.0")
@@ -114,8 +116,8 @@ delta_t = float(raw_input("Please enter a time step size (Default is 50.0):> ") 
 # Compute number of time_steps
 time_steps = time_steps_calc(t_max,delta_t)
 # Arrays for storing the computed solutions at each timestep
-h_array = np.zeros(time_steps)
-s_array = np.zeros(time_steps)
+h_array_init = np.zeros(time_steps)
+s_array_init = np.zeros(time_steps)
 time_array = np.linspace(0,t_max,num=time_steps)
 fig1 = pl.figure("h_vs_time")
 #pl.figure(1)
@@ -127,9 +129,9 @@ fig2 = pl.figure("s_vs_time")
 s_0 = s_0_calc(params.g,params.Cp,params.T,params.z)
 #s_init = s_init_calc(s_0, params.delta_s)
 
-h_array[0] = h_init
+h_array_init[0] = h_init
 
-h_array_runge_init = h_array.copy()
+h_array_runge_init = h_array_init.copy()
 
 for a_or_f in range(outer_array.size):
         
@@ -141,24 +143,39 @@ for a_or_f in range(outer_array.size):
     sigma = sigma_calc(params.V, delta_f, params.delta_s)
     s_init = s_infty_calc(alpha, sigma, params.delta_s, s_0)
     print "s_init = %.2f, sigma = %.2f " % (s_init,sigma) # For debugging.
-    s_array[0] = s_init
-    s_array_runge_init = s_array.copy()
+    s_array_init[0] = s_init
+    s_array_runge_init = s_array_init.copy()
     
     h_array_runge = h_array_runge_init.copy() # Remember to do this for h_array if you decide to use the euler method for multiple alpha values. 
     s_array_runge = s_array_runge_init.copy()
+    h_array = h_array_init.copy()   
+    s_array = s_array_init.copy()
     
     for i in range(1,time_steps):
 
         # Compute variables using functions defined above. 
 
-       # h_array[i] = h_n_plus_one_euler(alpha,delta_f,params.delta_s,s_array[i-1],s_0,params.D,h_array[i-1],delta_t) 
-       
-       # s_array[i] = s_n_plus_one_euler(delta_f,alpha,params.V,s_array[i-1],s_0,h_array[i-1],delta_t)   
+        if scheme=="rk":
 
-        h_array_runge[i] = h_n_plus_one_runge(alpha,delta_f,params.delta_s,s_array_runge[i-1],s_0,params.D,h_array_runge[i-1],delta_t) 
+            h_array_runge[i] = h_n_plus_one_runge(alpha,delta_f,params.delta_s,s_array_runge[i-1],s_0,params.D,h_array_runge[i-1],delta_t) 
        
-        s_array_runge[i] = s_n_plus_one_runge(delta_f,alpha,params.V,s_array_runge[i-1],s_0,h_array_runge[i-1],delta_t)   
+            s_array_runge[i] = s_n_plus_one_runge(delta_f,alpha,params.V,s_array_runge[i-1],s_0,h_array_runge[i-1],delta_t)
+        
+        elif scheme=="fe":
 
+            h_array[i] = h_n_plus_one_euler(alpha,delta_f,params.delta_s,s_array[i-1],s_0,params.D,h_array[i-1],delta_t) 
+       
+            s_array[i] = s_n_plus_one_euler(delta_f,alpha,params.V,s_array[i-1],s_0,h_array[i-1],delta_t)
+
+        elif scheme=="bth":
+
+            h_array_runge[i] = h_n_plus_one_runge(alpha,delta_f,params.delta_s,s_array_runge[i-1],s_0,params.D,h_array_runge[i-1],delta_t) 
+       
+            s_array_runge[i] = s_n_plus_one_runge(delta_f,alpha,params.V,s_array_runge[i-1],s_0,h_array_runge[i-1],delta_t)
+
+            h_array[i] = h_n_plus_one_euler(alpha,delta_f,params.delta_s,s_array[i-1],s_0,params.D,h_array[i-1],delta_t) 
+       
+            s_array[i] = s_n_plus_one_euler(delta_f,alpha,params.V,s_array[i-1],s_0,h_array[i-1],delta_t)
     # For debugging purposes - print out the solution arrays for inspection.
     #np.set_printoptions(precision=3) # Controls the precision of values in the numpy arrays.
     #print "h_array equals: " , h_array
@@ -170,10 +187,17 @@ for a_or_f in range(outer_array.size):
     combined_labelstr = labelstr_alpha + "  " + labelstr_delta_f 
     #pl.figure(1) # Switch to figure 1.
     pl.figure("h_vs_time")
-        
-   #pl.plot(time_array,h_array,label=combined_labelstr + " " + "Euler")
-   #pl.plot(time_array,h_array_runge,label=combined_labelstr + " " + "Runge Kutta")
-    pl.plot(time_array,h_array_runge,label=combined_labelstr)
+    if scheme=="rk":    
+        pl.plot(time_array,h_array_runge,label=combined_labelstr + " " + "RK4")
+    elif scheme=="fe":
+        pl.plot(time_array,h_array,label=combined_labelstr + " " + "FE", linestyle='--')
+
+    elif scheme=="bth":
+        pl.plot(time_array,h_array_runge,label=combined_labelstr + " " + "RK4")
+
+        pl.plot(time_array,h_array,label=combined_labelstr + " " + "FE", linestyle='--')
+
+
     pl.title("Steady State Height vs Time" ,fontsize=26)
     pl.xlabel(r"Time", fontsize=24)
     pl.ylabel(r"$\mathrm{h} \quad \mathrm{[m]}$", fontsize=24)
@@ -184,10 +208,20 @@ for a_or_f in range(outer_array.size):
 
     s_array_kJ = s_array / 1000.0 # Convert values in Joules/kg to kilo Joules/kg. 
     s_array_kJ_runge = s_array_runge / 1000.0 # Convert values in Joules/kg to kilo Joules/kg. 
+    
+    if scheme=="rk":    
+        pl.plot(time_array,s_array_kJ_runge,label=combined_labelstr + " " + "RK4")
 
-    #pl.plot(time_array,s_array_kJ,label=combined_labelstr + " " + "Euler")
-    #pl.plot(time_array,s_array_kJ_runge,label=combined_labelstr + " " + "Runge Kutta")
-    pl.plot(time_array,s_array_kJ_runge,label=combined_labelstr)
+    elif scheme=="fe":
+        pl.plot(time_array,s_array_kJ,label=combined_labelstr + " " + "FE", linestyle='--')
+
+    elif scheme=="bth":
+        pl.plot(time_array,s_array_kJ_runge,label=combined_labelstr + " " + "RK4")
+
+        pl.plot(time_array,s_array_kJ,label=combined_labelstr + " " + "FE", linestyle='--')
+
+
+    #pl.plot(time_array,s_array_kJ_runge,label=combined_labelstr)
     pl.title("Steady State Dry Static Energy vs Time", fontsize=26)
     pl.xlabel(r"Time", fontsize=24)
     pl.ylabel(r"$\hat{\mathrm{s}} \quad \mathrm{[kJ kg^{-1}]}$", fontsize=24)
