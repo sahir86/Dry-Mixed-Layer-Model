@@ -125,18 +125,25 @@ fig2 = pl.figure("s_vs_time")
 
 # Compute initial values
 s_0 = s_0_calc(params.g,params.Cp,params.T,params.z)
-s_init = s_init_calc(s_0, params.delta_s)
+#s_init = s_init_calc(s_0, params.delta_s)
 
 h_array[0] = h_init
-s_array[0] = s_init
 
 h_array_runge_init = h_array.copy()
-s_array_runge_init = s_array.copy()
 
 for a_or_f in range(outer_array.size):
-
+        
     alpha = alpha_array[a_or_f]
     delta_f = delta_f_array[a_or_f]
+    
+    # Compute initial values using steady state solutions
+
+    sigma = sigma_calc(params.V, delta_f, params.delta_s)
+    s_init = s_infty_calc(alpha, sigma, params.delta_s, s_0)
+    print "s_init = %.2f, sigma = %.2f " % (s_init,sigma) # For debugging.
+    s_array[0] = s_init
+    s_array_runge_init = s_array.copy()
+    
     h_array_runge = h_array_runge_init.copy() # Remember to do this for h_array if you decide to use the euler method for multiple alpha values. 
     s_array_runge = s_array_runge_init.copy()
     
