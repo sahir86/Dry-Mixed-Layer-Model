@@ -60,7 +60,8 @@ def s_n_plus_one_euler(delta_f,alpha,V,s_n,s_0,h_n,delta_t):
     return s_n_plus_one
 
 def time_steps_calc(t_max,delta_t):
-    time_steps = int( t_max / delta_t)
+    t_max_seconds = t_max * 24 * 60 * 60
+    time_steps = int( t_max_seconds / delta_t)
     return time_steps
 
 
@@ -94,7 +95,7 @@ def s_n_plus_one_runge(delta_f,alpha,V,s_n,s_0,h_n,delta_t):
 alpha_array = np.linspace(0.05,2.5,5)
 delta_f_array = np.linspace(30.0,50.0,5)
 
-scheme =  raw_input("Which scheme would you like to use, Forward Euler (fe), Runge Kutta (rk), or both (bth)? (Default is Both):> ") or "bth"
+scheme =  raw_input("Which scheme would you like to use, Forward Euler (fe), Runge Kutta (rk), or both (bth)? (Default is Runge Kutta):> ") or "rk"
 
 choice = raw_input("Would you like to vary alpha (a) or delta_f (f)? (Default is delta_f):> ") or "f"
 
@@ -108,8 +109,8 @@ else:
     alpha_array = np.full_like(alpha_array,alpha_choice)
   
 h_init = float(raw_input("Please enter an initial value for h (Default is 10.0):> ") or "10.0") # If nothing is entered, use 10m for the initial height
-t_max = int(raw_input("Please enter a maximum time value (Default is 2000000):> ") or "2000000")
-delta_t = float(raw_input("Please enter a time step size (Default is 50.0):> ") or "50.0")
+t_max = int(raw_input("Please enter a maximum time value (Default is 25 days):> ") or "25")
+delta_t = float(raw_input("Please enter a time step size (Default is 1000.0 seconds):> ") or "1000.0")
 #alpha = np.linspace(start_alpha,end_alpha,100) # Create an array of alpha values using the input values taken from the user. Note that 100 divisions are used. 
 
 
@@ -199,7 +200,7 @@ for a_or_f in range(outer_array.size):
 
 
     pl.title("Steady State Height vs Time" ,fontsize=26)
-    pl.xlabel(r"Time", fontsize=24)
+    pl.xlabel(r"Time $\mathrm{[days]}$", fontsize=24)
     pl.ylabel(r"$\mathrm{h} \quad \mathrm{[m]}$", fontsize=24)
     pl.legend(ncol=1,loc = 'best') #'upper left'
 
@@ -223,7 +224,7 @@ for a_or_f in range(outer_array.size):
 
     #pl.plot(time_array,s_array_kJ_runge,label=combined_labelstr)
     pl.title("Steady State Dry Static Energy vs Time", fontsize=26)
-    pl.xlabel(r"Time", fontsize=24)
+    pl.xlabel(r"Time $\mathrm{[days]}$", fontsize=24)
     pl.ylabel(r"$\hat{\mathrm{s}} \quad \mathrm{[kJ kg^{-1}]}$", fontsize=24)
     pl.legend(ncol=1,loc = 'best')
 
