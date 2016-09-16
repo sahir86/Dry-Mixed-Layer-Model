@@ -20,3 +20,13 @@ constants = {
     "T": 273.0 + 25,
     "z": 0.0
     }
+
+ak_consts = {
+        "beta": 0.42,
+        "delta_f": 35.0,
+        "V": 0.005,
+        "gamma": 5.0,
+        "phi_0_ft": 298.0,
+        "phi_0": 301.0
+        } # note that these are related to Ann-Kristin's potential temperature values.
+
