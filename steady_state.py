@@ -20,7 +20,7 @@ pl.close('all')
 
 # Define constants:
 # This allows you to access stored dictionary constants using the dot method. 
-params = AttrDict(constants) # Try to find a more standard way of doing this.
+#params = AttrDict(constants) # Try to find a more standard way of doing this.
 
 # Define the main functions for computing the mathematical expressions.
 def h_star_calc(delta_f, D, delta_s):
@@ -43,6 +43,25 @@ def h_infty_calc(alpha, sigma, h_star):
     h_infty = h_star * ((alpha * sigma)/ (1 + sigma - alpha))
     return h_infty
 
+# Ann-Kristin model functions.
+ak_params = AttrDict(ak_consts)
+
+def ak_phi_infty_calc(phi_0,delta_f,V,beta):
+    ak_phi_infty = phi_0 - (delta_f)/(V*(beta+1))
+    return ak_phi_infty
+
+def ak_plus_h_infty_calc(D,phi_0_ft,phi_infty,gamma,beta,V,phi_0):
+    ak_plus_h_infty = (-D*(phi_0_ft - phi_infty) + np.sqrt((D*(phi_0_ft - phi_infty))^2 - 4*gamma*D*beta*V*(phi_infty - phi_0)))/(2*gamma*D)
+    return ak_plus_h_infty
+
+def ak_minus_h_infty_calc(D,phi_0_ft,phi_infty,gamma,beta,V,phi_0):
+    ak_minus_h_infty_calc = (-D*(phi_0_ft - phi_infty) - np.sqrt((D*(phi_0_ft - phi_infty))^2 - 4*gamma*D*beta*V*(phi_infty - phi_0)))/(2*gamma*D)
+    return ak_minus_h_infty_calc
+
+def ak_day_converter():
+    ak_gamma_per_second = gamma / (24*60*60)
+    ak_delta_f_per_second = delta_f / (24*60*60)
+    return ak_gamma_per_second, ak_delta_f_per_second 
 
 # Lowest and highest values of alpha. Note that alpha should be > 0 and < 3.5. Never equal to 3.5. 
 # Consider writing an if statement with an error message if alpha >= 3.5 is entered. 
