@@ -46,23 +46,54 @@ def h_infty_calc(alpha, sigma, h_star):
 # Ann-Kristin model functions.
 ak_params = AttrDict(ak_consts)
 
-def ak_phi_infty_calc(phi_0,delta_f,V,beta):
-    ak_phi_infty = phi_0 - (delta_f)/(V*(beta+1))
+def ak_delta_f_calc(Q_rad,ak_h_infty):
+    ak_delta_f = - Q_rad * ak_h_infty
+    return ak_delta_f
+
+def ak_phi_infty_calc(phi_0,ak_delta_f,V,beta):
+    ak_phi_infty = phi_0 - (ak_delta_f)/(V*(beta+1))
     return ak_phi_infty
 
-def ak_plus_h_infty_calc(D,phi_0_ft,phi_infty,gamma,beta,V,phi_0):
-    ak_plus_h_infty = (-D*(phi_0_ft - phi_infty) + np.sqrt((D*(phi_0_ft - phi_infty))^2 - 4*gamma*D*beta*V*(phi_infty - phi_0)))/(2*gamma*D)
-    return ak_plus_h_infty
+def h_quad_solver(a,b,c):
+    ak_plus_h_infty = (-b + np.sqrt(b**2 - 4*a*c))/(2*a)
+    ak_minus_h_infty = (-b - np.sqrt(b**2 - 4*a*c))/(2*a)
+    return ak_plus_h_infty, ak_minus_h_infty
 
-def ak_minus_h_infty_calc(D,phi_0_ft,phi_infty,gamma,beta,V,phi_0):
-    ak_minus_h_infty_calc = (-D*(phi_0_ft - phi_infty) - np.sqrt((D*(phi_0_ft - phi_infty))^2 - 4*gamma*D*beta*V*(phi_infty - phi_0)))/(2*gamma*D)
-    return ak_minus_h_infty_calc
+# Note that the coefficients belwo correspond to delta_f = -Q_rad*h_infty. This is only true for potential temperature. 
+def h_quad_coefficients_theta(D,gamma,Q_rad,V,beta,phi_0_ft,phi_0):
 
-def ak_day_converter():
-    ak_gamma_per_second = gamma / (24*60*60)
-    ak_delta_f_per_second = delta_f / (24*60*60)
-    return ak_gamma_per_second, ak_delta_f_per_second 
+    a = D*(gamma - (Q_rad)/(V*(beta + 1)))
+    b = D*(phi_0_ft - phi_0) + (beta*Q_rad)/(beta+1)
+    c = 0.0
+    return a,b,c
 
+def ak_unit_converter(gamma,Q_rad):
+    ak_gamma_per_metre = gamma / (1000.0)
+    ak_qrad_per_second = Q_rad / (24.0 * 60.0 * 60.0)        
+    return ak_gamma_per_metre, ak_qrad_per_second 
+
+# Compute h_infty and s_infty using Ann-Kristin model functions.
+ak_gamma_per_metre, ak_qrad_per_second = ak_unit_converter(ak_params.gamma,ak_params.Q_rad)
+
+ak_plus_h_infty, ak_minus_h_infty = h_quad_solver(*h_quad_coefficients_theta(ak_params.D,ak_gamma_per_metre,ak_qrad_per_second,ak_params.V,ak_params.beta,ak_params.theta_0_ft,ak_params.theta_0))
+
+ak_delta_f = ak_delta_f_calc(ak_qrad_per_second,ak_plus_h_infty)
+ak_theta_infty = ak_phi_infty_calc(ak_params.theta_0,ak_delta_f,ak_params.V,ak_params.beta)
+
+# Check to see what effective value of D is being used:
+
+ak_D = - ak_qrad_per_second / (ak_gamma_per_metre * ak_plus_h_infty)
+ak_wft = - ak_qrad_per_second / (ak_gamma_per_metre) 
+
+print "Plus h_infty equals:> ", ak_plus_h_infty 
+print "Minus h_infty equals:> ", ak_minus_h_infty
+
+print "Delta_f equals:> ", ak_delta_f
+print "Theta_infty equals:> ", ak_theta_infty
+print "Effective D equals:> ", ak_D
+print "Effective wft equals:> ", ak_wft
+
+"""
 # Lowest and highest values of alpha. Note that alpha should be > 0 and < 3.5. Never equal to 3.5. 
 # Consider writing an if statement with an error message if alpha >= 3.5 is entered. 
 start_alpha = float(raw_input("Please enter the lowest value for alpha:> ") or "0.025") # If the user enters nothing, use 0.025 as the default value.  
@@ -136,3 +167,5 @@ pl.show(fig1)
         
 pl.show(fig2)
 #pl.close(fig2)
+
+"""
