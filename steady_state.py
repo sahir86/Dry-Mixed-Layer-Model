@@ -73,99 +73,90 @@ def ak_unit_converter(gamma,Q_rad):
     return ak_gamma_per_metre, ak_qrad_per_second 
 
 # Compute h_infty and s_infty using Ann-Kristin model functions.
-ak_gamma_per_metre, ak_qrad_per_second = ak_unit_converter(ak_params.gamma,ak_params.Q_rad)
+#ak_gamma_per_metre, ak_qrad_per_second = ak_unit_converter(ak_params.gamma,ak_params.Q_rad)
+#
+#ak_plus_h_infty, ak_minus_h_infty = h_quad_solver(*h_quad_coefficients_theta(ak_params.D,ak_gamma_per_metre,ak_qrad_per_second,ak_params.V,ak_params.beta,ak_params.theta_0_ft,ak_params.theta_0))
+#
+#ak_delta_f = ak_delta_f_calc(ak_qrad_per_second,ak_plus_h_infty)
+#ak_theta_infty = ak_phi_infty_calc(ak_params.theta_0,ak_delta_f,ak_params.V,ak_params.beta)
+#
+## Check to see what effective value of D is being used:
+#
+#ak_D = - ak_qrad_per_second / (ak_gamma_per_metre * ak_plus_h_infty)
+#ak_wft = - ak_qrad_per_second / (ak_gamma_per_metre) 
+#
+#print "Plus h_infty equals:> ", ak_plus_h_infty 
+#print "Minus h_infty equals:> ", ak_minus_h_infty
+#
+#print "Delta_f equals:> ", ak_delta_f
+#print "Theta_infty equals:> ", ak_theta_infty
+#print "Effective D equals:> ", ak_D
+#print "Effective wft equals:> ", ak_wft
+#
 
-ak_plus_h_infty, ak_minus_h_infty = h_quad_solver(*h_quad_coefficients_theta(ak_params.D,ak_gamma_per_metre,ak_qrad_per_second,ak_params.V,ak_params.beta,ak_params.theta_0_ft,ak_params.theta_0))
-
-ak_delta_f = ak_delta_f_calc(ak_qrad_per_second,ak_plus_h_infty)
-ak_theta_infty = ak_phi_infty_calc(ak_params.theta_0,ak_delta_f,ak_params.V,ak_params.beta)
-
-# Check to see what effective value of D is being used:
-
-ak_D = - ak_qrad_per_second / (ak_gamma_per_metre * ak_plus_h_infty)
-ak_wft = - ak_qrad_per_second / (ak_gamma_per_metre) 
-
-print "Plus h_infty equals:> ", ak_plus_h_infty 
-print "Minus h_infty equals:> ", ak_minus_h_infty
-
-print "Delta_f equals:> ", ak_delta_f
-print "Theta_infty equals:> ", ak_theta_infty
-print "Effective D equals:> ", ak_D
-print "Effective wft equals:> ", ak_wft
-
-"""
-# Lowest and highest values of alpha. Note that alpha should be > 0 and < 3.5. Never equal to 3.5. 
-# Consider writing an if statement with an error message if alpha >= 3.5 is entered. 
-start_alpha = float(raw_input("Please enter the lowest value for alpha:> ") or "0.025") # If the user enters nothing, use 0.025 as the default value.  
-end_alpha = float(raw_input("Please enter the highest value for alpha:> ")or "2.5") # Use 2.5 as the default value if the user enters nothing. 
+# Lowest and highest values of beta. Note that beta should never equal -1.0.
+start_beta = float(raw_input("Please enter the lowest value for beta:> ") or "0.025") # If the user enters nothing, use 0.025 as the default value.  
+end_beta = float(raw_input("Please enter the highest value for beta:> ")or "2.5") # Use 2.5 as the default value if the user enters nothing. 
 
 
-alpha = np.linspace(start_alpha,end_alpha,100) # Create an array of alpha values using the input values taken from the user. Note that 100 divisions are used. 
+beta = np.linspace(start_beta,end_beta,1000) # Create an array of beta values using the input values taken from the user. Note that 100 divisions are used. 
 
-delta_f = np.linspace(30.0,50.0,5)
+Q_rad = np.linspace(-1.0,-6.0,6)
 
-fig1 = pl.figure("h_vs_alpha")
+fig1 = pl.figure("h_vs_beta")
 #pl.figure(1)
 
-fig2 = pl.figure("s_vs_alpha")
+fig2 = pl.figure("theta_vs_beta")
 #pl.figure(2)
 
-for i in range(delta_f.size):
+for i in range(Q_rad.size):
 
     # Compute variables using functions defined above. 
 
-    h_star = h_star_calc(delta_f[i], params.D, params.delta_s)
-    
-    sigma = sigma_calc(params.V, delta_f[i], params.delta_s)
-    
-    s_0 = s_0_calc(params.g,params.Cp,params.T,params.z)
-    
-    s_infty = s_infty_calc(alpha, sigma, params.delta_s, s_0)
-    
-    h_infty = h_infty_calc(alpha, sigma, h_star)
+    ak_gamma_per_metre, ak_qrad_per_second = ak_unit_converter(ak_params.gamma,Q_rad[i])
+
+    ak_plus_h_infty, ak_minus_h_infty = h_quad_solver(*h_quad_coefficients_theta(ak_params.D,ak_gamma_per_metre,ak_qrad_per_second,ak_params.V,beta,ak_params.theta_0_ft,ak_params.theta_0))
+
+    ak_delta_f = ak_delta_f_calc(ak_qrad_per_second,ak_plus_h_infty)
+    ak_theta_infty = ak_phi_infty_calc(ak_params.theta_0,ak_delta_f,ak_params.V,beta)
+
+# Check to see what effective value of D is being used:
+
+#ak_D = - ak_qrad_per_second / (ak_gamma_per_metre * ak_plus_h_infty)
+#ak_wft = - ak_qrad_per_second / (ak_gamma_per_metre) 
     
 
-    labelstr_sigma =str(r"$\sigma =$ ") + "%.2f" % sigma
-    labelstr_delta_f =str(r"$\quad \Delta F =$ ") + "%.2f" % delta_f[i] # This is incomplete, need to see how to use a second legend.
-    combined_labelstr = labelstr_sigma + "  " + labelstr_delta_f 
+#    labelstr_sigma =str(r"$\sigma =$ ") + "%.2f" % sigma
+    labelstr_Q_rad =str(r"$\quad Q_\mathrm{rad}  =$ ") + "%.2f" % Q_rad[i] # This is incomplete, need to see how to use a second legend.
+    combined_labelstr =  labelstr_Q_rad 
     #pl.figure(1) # Switch to figure 1.
-    pl.figure("h_vs_alpha")
+    pl.figure("h_vs_beta")
         
-    pl.plot(alpha,h_infty,colours[i],label=combined_labelstr)
-    pl.title("Steady State Height vs alpha" ,fontsize=26)
-    pl.xlabel(r"$\alpha$", fontsize=24)
+    pl.plot(beta,ak_plus_h_infty,colours[i],label=combined_labelstr)
+    pl.title("Steady State Height vs beta" ,fontsize=26)
+    pl.xlabel(r"$\beta$", fontsize=24)
     pl.ylabel(r"$\mathrm{h}_\infty \quad \mathrm{[m]}$", fontsize=24)
     pl.legend(ncol=1,loc = 'upper left')
     #pl.xlim(lvec[0]-1,lvec[-1]+1)
     
     #pl.figure(2) # Switch to figure 2. 
-    pl.figure("s_vs_alpha") 
+    pl.figure("theta_vs_beta") 
     
-    s_infty_kJ = s_infty / 1000.0 # Convert values in Joules to kilo Joules. 
-    pl.plot(alpha,s_infty_kJ,colours[i],label=combined_labelstr)
-    pl.title("Steady State Dry Static Energy vs alpha", fontsize=26)
-    pl.xlabel(r"$\alpha$", fontsize=24)
-    pl.ylabel(r"$\mathrm{s}_\infty \quad \mathrm{[kJ kg^{-1}]}$", fontsize=24)
+#    s_infty_kJ = s_infty / 1000.0 # Convert values in Joules to kilo Joules. 
+    pl.plot(beta,ak_theta_infty,colours[i],label=combined_labelstr)
+    pl.title("Steady State Potential Temperature vs beta", fontsize=26)
+    pl.xlabel(r"$\beta$", fontsize=24)
+    pl.ylabel(r"$\theta_\infty \quad \mathrm{[K]}$", fontsize=24)
     pl.legend(ncol=1,loc = 'upper left')
 
-#print "The value of alpha is: ", alpha
-#print "The value of sigma is: ", sigma
-#print "The value of s_infty is: ", s_infty, "Joules per Kilogram."
-#print "The value of h_infty is: ", h_infty, "Metres."
-
-#print "alpha_vec = ", alpha
-#print " h_infty_vec = ", h_infty
-
- 
- 
-#fig1.savefig("height_vs_alpha.pdf")
+#fig1.savefig("height_vs_beta.pdf")
 
 pl.show(fig1)
 #pl.close(fig1)
 
-#fig2.savefig("s_infinity_vs_alpha.pdf")
+#fig2.savefig("s_infinity_vs_beta.pdf")
         
 pl.show(fig2)
 #pl.close(fig2)
 
-"""
+
