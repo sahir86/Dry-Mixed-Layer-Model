@@ -114,14 +114,14 @@ def rho_calc(p_0, R_air, T):
 
 # Ask user to choose between theta or S.
 
-choice = raw_input("Would you like to compute for potential temperature (t) or static energy (s)? (default is t):> ") or "t"
+choice = raw_input("Would you like to compute for potential temperature (t) or static energy (s)? (default is s):> ") or "s"
 
 # Lowest and highest values of beta. Note that beta should never equal -1.0.
-start_beta = float(raw_input("Please enter the lowest value for beta (default is 0.025):> ") or "0.025") # If the user enters nothing, use 0.025 as the default value.  
-end_beta = float(raw_input("Please enter the highest value for beta (default is 2.5):> ")or "2.5") # Use 2.5 as the default value if the user enters nothing. 
+start_beta = float(raw_input("Please enter the lowest value for beta (default is 0.0):> ") or "0.0") # If the user enters nothing, use 0.025 as the default value.  
+end_beta = float(raw_input("Please enter the highest value for beta (default is 1.0):> ")or "1.0") # Use 2.5 as the default value if the user enters nothing. 
 
 
-beta = np.linspace(start_beta,end_beta,1000) # Create an array of beta values using the input values taken from the user. Note that 1000 divisions are used. 
+beta = np.linspace(start_beta,end_beta,100) # Create an array of beta values using the input values taken from the user. Note that 100 divisions are used. 
 
 Q_rad = np.linspace(-1.0,-6.0,6)
 
@@ -179,6 +179,9 @@ elif choice == "s":
 
     fig2 = pl.figure("s_vs_beta")
     #pl.figure(2)
+
+    fig3 = pl.figure("delta_s_plus_vs_beta")
+
     for i in range(Q_rad.size):
 
         # Compute variables using functions defined above. 
@@ -198,6 +201,7 @@ elif choice == "s":
 
         #ak_D = - ak_qrad_per_second / (ak_gamma_per_metre * ak_plus_h_infty)
         #ak_wft = - ak_qrad_per_second / (ak_gamma_per_metre) 
+        delta_plus_s_kJ = (s_0_ft + (ak_gamma_per_metre * ak_params.Cp * ak_plus_h_infty) - ak_s_infty) / 1000.0
         
 
     #    labelstr_sigma =str(r"$\sigma =$ ") + "%.2f" % sigma
@@ -223,6 +227,13 @@ elif choice == "s":
         pl.xlabel(r"$\beta$", fontsize=24)
         pl.ylabel(r"$\mathrm{s}_\infty \quad \mathrm{[kJ kg^{-1}]}$", fontsize=24)
         pl.legend(ncol=1,loc = 'upper left')
+
+        pl.figure("delta_s_plus_vs_beta")
+        pl.plot(beta,delta_plus_s_kJ,colours[i],label=combined_labelstr)
+        pl.title(r"$\Delta_{+} \mathrm{s}_\infty$ vs beta", fontsize=26)
+        pl.xlabel(r"$\beta$", fontsize=24)
+        pl.ylabel(r"$\Delta_{+} \mathrm{s}_\infty \quad \mathrm{[kJ kg^{-1}]}$", fontsize=24)
+        pl.legend(ncol=1,loc = 'upper left')
 #fig1.savefig("height_vs_beta.pdf")
 
 pl.show(fig1)
@@ -233,4 +244,4 @@ pl.show(fig1)
 pl.show(fig2)
 #pl.close(fig2)
 
-
+pl.show(fig3)
